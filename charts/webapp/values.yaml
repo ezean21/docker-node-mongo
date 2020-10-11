@@ -1,0 +1,26 @@
+debugMode:
+    enabled: true
+
+resources:
+  limits: {}
+  #   cpu: 100m
+  #   memory: 128Mi
+  requests: {}
+  #   cpu: 100m
+  #   memory: 128Mi
+
+image:
+  repository: webapp
+  pullPolicy: IfNotPresent
+
+waitMongoEntrypoint:
+  enable: true
+
+service:
+  type: ClusterIP
+  port: 80
+  portName: webapp
+  nodePort: ""
+  externalIPs: []
+  loadBalancerSourceRanges: []
+  annotations: {}

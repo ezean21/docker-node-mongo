@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "webapp.fullname" . }}
+  labels:
+    app.kubernetes.io/component: {{ include "webapp.fullname" . }}
+spec:
+  strategy:
+  type: {{ .Values.strategyType }}
+  rollingUpdate: null
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ include "webapp.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: webapp
+    spec:
+        containers:
+          - name: {{ include "webapp.fullname" . }}
+            image: {{ .Values.image.repository | quote }}
+            imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+            {{- if .Values.waitMongoEntrypoint.enabled }}
+            command: ["./wait_for_mongodb.sh", "mongo", "npm", "start"]
+            {{- end}}
+            ports:
+                - containerPort: 3000
+                  protocol: TCP
+            {{- if .Values.debugMode.enabled }}
+            volumeMounts:
+              - name: code-volume
+                mountPath: /usr/src/app
+            {{- end}}
+        volumes:
+          {{- if .Values.debugMode.enabled }}
+          - name: code-volume
+            hostPath:
+              # directory location on host
+              path: /code
+              # this field is optional
+              type: Directory
+          {{- end }}
+
